@@ -1,0 +1,44 @@
+Starting Metro Bundler
+Static rendering is enabled. Learn more: https://docs.expo.dev/router/reference/static-rendering/
+Web node_modules\expo-router\entry.js ÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæ  0.0% (0/1)
+╬╗ node_modules\expo-router\node\render.js ÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûæ 94.6% (3587/3687)
+╬╗ Bundled 3722ms node_modules\expo-router\node\render.js (3865 modules)
+Web node_modules\expo-router\entry.js ÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûæÔûæÔûæÔûæÔûæÔûæÔûæ 60.5% (177/356)
+Web node_modules\expo-router\entry.js ÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûæÔûæÔûæÔûæÔûæÔûæÔûæ 60.5% (484/704)
+Web node_modules\expo-router\entry.js ÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûæÔûæÔûæÔûæÔûæÔûæÔûæ 60.5% ( 675/1180)
+Web node_modules\expo-router\entry.js ÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûæÔûæÔûæÔûæÔûæÔûæÔûæ 60.5% (1130/1749)
+Web node_modules\expo-router\entry.js ÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûæÔûæÔûæÔûæÔûæÔûæÔûæ 60.5% (1416/3500)
+Web node_modules\expo-router\entry.js ÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûæÔûæÔûæÔûæÔûæÔûæÔûæ 60.5% (2026/3588)
+Web node_modules\expo-router\entry.js ÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûæÔûæÔûæÔûæÔûæ 69.5% (2992/3588)
+Web node_modules\expo-router\entry.js ÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûæ 97.8% (3769/3812)
+Web Bundled 32770ms node_modules\expo-router\entry.js (3840 modules)
+
+ÔÇ║ web bundles (2):
+_expo/static/css/web-d1312017aa04f51758225d9df0d40584.css (65.7 kB)
+_expo/static/js/web/entry-3aee970c7e4426b2b57e6c2923aa76db.js (5.58 MB)
+
+ÔÇ║ Static routes (22):
+/list (18.6 kB)
+/deals (18.7 kB)
+/modal (19 kB)
+/ (index) (18.6 kB)
+/search (18.6 kB)
+/recipes (36.7 kB)
+/scanner (18.6 kB)
+/profile (18.6 kB)
+/finances (31.7 kB)
+/settings (33.4 kB)
+/_sitemap (18.1 kB)
+/favorites (26 kB)
+/+not-found (18.7 kB)
+/onboarding (22.5 kB)
+/(tabs)/list (18.6 kB)
+/(tabs) (18.6 kB)
+/notifications (32 kB)
+/(tabs)/search (18.6 kB)
+/receipt-result (25.9 kB)
+/(tabs)/profile (18.6 kB)
+/scanner_placeholder (18.6 kB)
+/(tabs)/scanner_placeholder (18.6 kB)
+
+Exported: dist

@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1" />
+    <title>NotaPoint - Compare preços em tempo real</title>
+    <meta name="description" content="Escaneie notas fiscais e compare preços de supermercados, farmácias e comércios locais. Economize dinheiro com informações em tempo real." />
+    <meta name="author" content="NotaPoint" />
+    <meta name="theme-color" content="#006B4D" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+    <meta property="og:title" content="NotaPoint - Compare preços em tempo real" />
+    <meta property="og:description" content="Escaneie notas fiscais e encontre os melhores preços na sua cidade." />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@notapoint" />
+    <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+    
+    <style>
+      /* Safe area padding for notched devices */
+      :root {
+        --safe-area-inset-bottom: env(safe-area-inset-bottom, 0px);
+      }
+      .pb-safe {
+        padding-bottom: max(0.5rem, var(--safe-area-inset-bottom));
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
