@@ -13,13 +13,15 @@ import {
   Filter,
   Search,
   ChevronRight,
-  ShoppingBag
+  ShoppingBag,
+  Plus
 } from "lucide-react";
 import { MobileLayout } from "@/components/layout/MobileLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
+import { CreateRecipeModal, NewRecipe } from "@/components/recipes/CreateRecipeModal";
 
 interface Recipe {
   id: number;
@@ -144,6 +146,20 @@ export default function Recipes() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("Todas");
   const [activeTab, setActiveTab] = useState("recomendadas");
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+
+  const handleCreateRecipe = (newRecipe: NewRecipe) => {
+    const recipe: Recipe = {
+      id: Date.now(),
+      ...newRecipe,
+      matchPercentage: 100,
+      missingIngredients: [],
+      isFavorite: false,
+      timesMade: 0,
+      rating: 0,
+    };
+    setRecipes([recipe, ...recipes]);
+  };
 
   const toggleFavorite = (id: number) => {
     setRecipes(recipes.map(r => 
@@ -268,9 +284,13 @@ export default function Recipes() {
                 Baseadas nas suas compras
               </p>
             </div>
-            <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-              <ChefHat className="w-6 h-6 text-primary" />
-            </div>
+            <Button
+              size="icon"
+              className="w-12 h-12 rounded-full"
+              onClick={() => setIsCreateModalOpen(true)}
+            >
+              <Plus className="w-5 h-5" />
+            </Button>
           </motion.div>
 
           {/* Search */}
@@ -373,6 +393,12 @@ export default function Recipes() {
             )}
           </div>
         </Tabs>
+
+        <CreateRecipeModal
+          open={isCreateModalOpen}
+          onOpenChange={setIsCreateModalOpen}
+          onSubmit={handleCreateRecipe}
+        />
       </div>
     </MobileLayout>
   );
