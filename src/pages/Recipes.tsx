@@ -22,6 +22,7 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { CreateRecipeModal, NewRecipe } from "@/components/recipes/CreateRecipeModal";
+import { RecipeDetailModal } from "@/components/recipes/RecipeDetailModal";
 
 interface Recipe {
   id: number;
@@ -38,6 +39,7 @@ interface Recipe {
   timesMade: number;
   rating: number;
   category: string;
+  instructions?: string[];
 }
 
 const mockRecipes: Recipe[] = [
@@ -147,6 +149,7 @@ export default function Recipes() {
   const [selectedCategory, setSelectedCategory] = useState("Todas");
   const [activeTab, setActiveTab] = useState("recomendadas");
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
 
   const handleCreateRecipe = (newRecipe: NewRecipe) => {
     const recipe: Recipe = {
@@ -192,7 +195,8 @@ export default function Recipes() {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.05 }}
-      className="bg-card rounded-2xl overflow-hidden border border-border/50 shadow-sm"
+      className="bg-card rounded-2xl overflow-hidden border border-border/50 shadow-sm cursor-pointer hover:shadow-md transition-shadow"
+      onClick={() => setSelectedRecipe(recipe)}
     >
       <div className="relative">
         <img 
@@ -398,6 +402,13 @@ export default function Recipes() {
           open={isCreateModalOpen}
           onOpenChange={setIsCreateModalOpen}
           onSubmit={handleCreateRecipe}
+        />
+
+        <RecipeDetailModal
+          recipe={selectedRecipe}
+          open={!!selectedRecipe}
+          onOpenChange={(open) => !open && setSelectedRecipe(null)}
+          onToggleFavorite={toggleFavorite}
         />
       </div>
     </MobileLayout>
