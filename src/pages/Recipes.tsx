@@ -10,19 +10,27 @@ import {
   TrendingUp, 
   Sparkles,
   BookOpen,
-  Filter,
   Search,
   ChevronRight,
   ShoppingBag,
-  Plus
+  Plus,
+  X,
+  CheckCircle2
 } from "lucide-react";
 import { MobileLayout } from "@/components/layout/MobileLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { CreateRecipeModal, NewRecipe } from "@/components/recipes/CreateRecipeModal";
 import { RecipeDetailModal } from "@/components/recipes/RecipeDetailModal";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerClose,
+} from "@/components/ui/drawer";
 
 interface Recipe {
   id: number;
@@ -150,6 +158,7 @@ export default function Recipes() {
   const [activeTab, setActiveTab] = useState("recomendadas");
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
+  const [isAvailableDrawerOpen, setIsAvailableDrawerOpen] = useState(false);
 
   const handleCreateRecipe = (newRecipe: NewRecipe) => {
     const recipe: Recipe = {
@@ -186,6 +195,9 @@ export default function Recipes() {
   const favoriteRecipes = filteredRecipes.filter(r => r.isFavorite);
   const mostMadeRecipes = [...filteredRecipes].sort((a, b) => b.timesMade - a.timesMade);
   const trendingRecipes = [...filteredRecipes].sort((a, b) => b.rating - a.rating);
+  
+  // Receitas 100% disponíveis (sem ingredientes faltando)
+  const fullyAvailableRecipes = recipes.filter(r => r.missingIngredients.length === 0);
 
   const getRecipesByTab = () => {
     switch (activeTab) {
@@ -220,7 +232,10 @@ export default function Recipes() {
           </Badge>
         </div>
         <button
-          onClick={() => toggleFavorite(recipe.id)}
+          onClick={(e) => {
+            e.stopPropagation();
+            toggleFavorite(recipe.id);
+          }}
           className="absolute top-2 right-2 w-8 h-8 rounded-full bg-background/90 backdrop-blur-sm flex items-center justify-center"
         >
           <Heart 
@@ -274,6 +289,44 @@ export default function Recipes() {
             {recipe.difficulty}
           </Badge>
         </div>
+      </div>
+    </motion.div>
+  );
+
+  const AvailableRecipeItem = ({ recipe }: { recipe: Recipe }) => (
+    <motion.div
+      initial={{ opacity: 0, x: -10 }}
+      animate={{ opacity: 1, x: 0 }}
+      className="flex items-center gap-3 p-3 bg-muted/30 rounded-xl cursor-pointer hover:bg-muted/50 transition-colors"
+      onClick={() => {
+        setIsAvailableDrawerOpen(false);
+        setTimeout(() => setSelectedRecipe(recipe), 200);
+      }}
+    >
+      <img
+        src={recipe.image}
+        alt={recipe.name}
+        className="w-16 h-16 rounded-xl object-cover"
+      />
+      <div className="flex-1 min-w-0">
+        <h4 className="font-medium text-foreground truncate">{recipe.name}</h4>
+        <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1">
+          <span className="flex items-center gap-1">
+            <Clock className="w-3 h-3" />
+            {recipe.time}
+          </span>
+          <span className="flex items-center gap-1">
+            <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
+            {recipe.rating}
+          </span>
+        </div>
+      </div>
+      <div className="flex items-center gap-2">
+        <Badge className="bg-primary/10 text-primary border-0">
+          <CheckCircle2 className="w-3 h-3 mr-1" />
+          100%
+        </Badge>
+        <ChevronRight className="w-4 h-4 text-muted-foreground" />
       </div>
     </motion.div>
   );
@@ -354,12 +407,13 @@ export default function Recipes() {
           </div>
 
           <div className="flex-1 overflow-y-auto px-4 py-4">
-            {/* Quick Stats */}
+            {/* Quick Stats - Clicável */}
             {activeTab === "recomendadas" && (
-              <motion.div
+              <motion.button
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="bg-gradient-to-r from-primary/10 to-accent/10 rounded-2xl p-4 mb-4 border border-primary/20"
+                className="w-full bg-gradient-to-r from-primary/10 to-accent/10 rounded-2xl p-4 mb-4 border border-primary/20 text-left hover:from-primary/15 hover:to-accent/15 transition-colors"
+                onClick={() => setIsAvailableDrawerOpen(true)}
               >
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
@@ -367,15 +421,15 @@ export default function Recipes() {
                   </div>
                   <div className="flex-1">
                     <p className="text-sm font-medium text-foreground">
-                      {recommendedRecipes.length} receitas disponíveis
+                      {fullyAvailableRecipes.length} receitas prontas para fazer
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      Com base nos {recipes.reduce((acc, r) => acc + r.ingredients.length, 0)} itens das suas compras
+                      Você tem todos os ingredientes necessários
                     </p>
                   </div>
                   <ChevronRight className="w-5 h-5 text-muted-foreground" />
                 </div>
-              </motion.div>
+              </motion.button>
             )}
 
             {/* Recipe Grid */}
@@ -417,6 +471,47 @@ export default function Recipes() {
           onToggleFavorite={toggleFavorite}
           onMarkAsDone={handleMarkAsDone}
         />
+
+        {/* Drawer de Receitas Disponíveis */}
+        <Drawer open={isAvailableDrawerOpen} onOpenChange={setIsAvailableDrawerOpen}>
+          <DrawerContent className="max-h-[85vh] outline-none flex flex-col">
+            <DrawerHeader className="border-b border-border/50 pb-4 shrink-0">
+              <div className="flex items-center justify-between">
+                <DrawerTitle className="flex items-center gap-2 text-xl">
+                  <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                    <CheckCircle2 className="w-5 h-5 text-primary" />
+                  </div>
+                  Prontas para fazer
+                </DrawerTitle>
+                <DrawerClose asChild>
+                  <Button variant="ghost" size="icon" className="rounded-full">
+                    <X className="w-5 h-5" />
+                  </Button>
+                </DrawerClose>
+              </div>
+              <p className="text-sm text-muted-foreground mt-2">
+                Receitas com 100% dos ingredientes disponíveis
+              </p>
+            </DrawerHeader>
+
+            <div className="flex-1 overflow-y-auto overscroll-contain p-4">
+              <div className="space-y-3">
+                {fullyAvailableRecipes.map((recipe) => (
+                  <AvailableRecipeItem key={recipe.id} recipe={recipe} />
+                ))}
+                
+                {fullyAvailableRecipes.length === 0 && (
+                  <div className="flex flex-col items-center justify-center py-12">
+                    <ShoppingBag className="w-12 h-12 text-muted-foreground/50 mb-4" />
+                    <p className="text-muted-foreground text-center">
+                      Nenhuma receita com todos os ingredientes disponíveis
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </DrawerContent>
+        </Drawer>
       </div>
     </MobileLayout>
   );

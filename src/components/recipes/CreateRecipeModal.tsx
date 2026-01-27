@@ -28,7 +28,6 @@ import {
   DrawerTitle,
   DrawerClose,
 } from "@/components/ui/drawer";
-import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface CreateRecipeModalProps {
   open: boolean;
@@ -147,8 +146,8 @@ export function CreateRecipeModal({ open, onOpenChange, onSubmit }: CreateRecipe
 
   return (
     <Drawer open={open} onOpenChange={onOpenChange}>
-      <DrawerContent className="max-h-[95vh] outline-none">
-        <DrawerHeader className="border-b border-border/50 pb-4">
+      <DrawerContent className="max-h-[95vh] outline-none flex flex-col">
+        <DrawerHeader className="border-b border-border/50 pb-4 shrink-0">
           <div className="flex items-center justify-between">
             <DrawerTitle className="flex items-center gap-2 text-xl">
               <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
@@ -164,7 +163,8 @@ export function CreateRecipeModal({ open, onOpenChange, onSubmit }: CreateRecipe
           </div>
         </DrawerHeader>
 
-        <ScrollArea className="flex-1 max-h-[calc(95vh-10rem)]">
+        {/* Scrollable Content */}
+        <div className="flex-1 overflow-y-auto overscroll-contain">
           <div className="p-5 space-y-5">
             {/* Nome */}
             <div className="space-y-2">
@@ -373,11 +373,14 @@ export function CreateRecipeModal({ open, onOpenChange, onSubmit }: CreateRecipe
                 </Button>
               </div>
             </div>
+            
+            {/* Extra padding for bottom buttons */}
+            <div className="h-4" />
           </div>
-        </ScrollArea>
+        </div>
 
         {/* Botões fixos no rodapé */}
-        <div className="p-5 border-t border-border/50 bg-background">
+        <div className="p-5 border-t border-border/50 bg-background shrink-0">
           <div className="flex gap-3">
             <Button
               variant="outline"
