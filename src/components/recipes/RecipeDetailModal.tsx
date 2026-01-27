@@ -17,10 +17,8 @@ import { Badge } from "@/components/ui/badge";
 import {
   Drawer,
   DrawerContent,
-  DrawerHeader,
   DrawerClose,
 } from "@/components/ui/drawer";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 
 interface Recipe {
@@ -145,9 +143,9 @@ export function RecipeDetailModal({
 
   return (
     <Drawer open={open} onOpenChange={handleClose}>
-      <DrawerContent className="max-h-[95vh] outline-none">
-        {/* Hero Image */}
-        <div className="relative h-56">
+      <DrawerContent className="max-h-[95vh] outline-none flex flex-col">
+        {/* Hero Image - Fixed */}
+        <div className="relative h-56 shrink-0">
           <img
             src={recipe.image}
             alt={recipe.name}
@@ -155,9 +153,9 @@ export function RecipeDetailModal({
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
           
-          {/* Top Actions */}
-          <div className="absolute top-4 left-4 right-4 flex justify-between items-center">
-            <div className="w-12 h-1 bg-white/30 rounded-full mx-auto" />
+          {/* Drag handle */}
+          <div className="absolute top-3 left-0 right-0 flex justify-center">
+            <div className="w-12 h-1.5 bg-white/40 rounded-full" />
           </div>
           
           {/* Floating Actions - Fixed spacing */}
@@ -201,7 +199,8 @@ export function RecipeDetailModal({
           </div>
         </div>
 
-        <ScrollArea className="flex-1 max-h-[calc(95vh-14rem)]">
+        {/* Scrollable Content */}
+        <div className="flex-1 overflow-y-auto overscroll-contain">
           <div className="p-5 space-y-5">
             {/* Stats Cards */}
             <div className="grid grid-cols-4 gap-2">
@@ -348,7 +347,7 @@ export function RecipeDetailModal({
 
             {/* Action Button */}
             {!showRating && (
-              <div className="pt-2 pb-4">
+              <div className="pt-2 pb-8">
                 <Button 
                   className="w-full h-14 text-base font-semibold rounded-2xl shadow-lg" 
                   size="lg"
@@ -360,7 +359,7 @@ export function RecipeDetailModal({
               </div>
             )}
           </div>
-        </ScrollArea>
+        </div>
       </DrawerContent>
     </Drawer>
   );
