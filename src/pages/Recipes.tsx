@@ -170,6 +170,12 @@ export default function Recipes() {
     ));
   };
 
+  const handleMarkAsDone = (id: number, rating: number) => {
+    setRecipes(recipes.map(r => 
+      r.id === id ? { ...r, timesMade: r.timesMade + 1, rating: rating } : r
+    ));
+  };
+
   const filteredRecipes = recipes.filter(recipe => {
     const matchesSearch = recipe.name.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = selectedCategory === "Todas" || recipe.category === selectedCategory;
@@ -409,6 +415,7 @@ export default function Recipes() {
           open={!!selectedRecipe}
           onOpenChange={(open) => !open && setSelectedRecipe(null)}
           onToggleFavorite={toggleFavorite}
+          onMarkAsDone={handleMarkAsDone}
         />
       </div>
     </MobileLayout>
