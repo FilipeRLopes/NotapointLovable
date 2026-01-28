@@ -158,7 +158,10 @@ export default function Settings() {
           transition={{ delay: 0.4 }}
           className="space-y-2"
         >
-          <button className="w-full flex items-center gap-4 p-4 bg-card rounded-2xl border border-border/50 hover:bg-red-500/5 transition-colors group">
+          <button 
+            onClick={() => navigate("/auth")}
+            className="w-full flex items-center gap-4 p-4 bg-card rounded-2xl border border-border/50 hover:bg-red-500/5 transition-colors group"
+          >
             <div className="w-10 h-10 rounded-xl bg-red-500/10 flex items-center justify-center">
               <LogOut className="w-5 h-5 text-red-500" />
             </div>
