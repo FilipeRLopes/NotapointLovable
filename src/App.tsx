@@ -16,6 +16,7 @@ import Notifications from "./pages/Notifications";
 import Favorites from "./pages/Favorites";
 import Settings from "./pages/Settings";
 import Deals from "./pages/Deals";
+import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -28,6 +29,7 @@ const App = () => (
         <Sonner />
         <Routes>
           <Route path="/" element={<Index />} />
+          <Route path="/auth" element={<Auth />} />
           <Route path="/onboarding" element={<Onboarding />} />
           <Route path="/scanner" element={<Scanner />} />
           <Route path="/receipt-result" element={<ReceiptResult />} />
