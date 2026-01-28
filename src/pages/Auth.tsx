@@ -5,11 +5,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Eye, EyeOff, Mail, Lock, User } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, User, ArrowLeft, CheckCircle } from "lucide-react";
+
+type AuthView = "login" | "signup" | "forgot-password" | "reset-sent";
 
 export default function Auth() {
   const navigate = useNavigate();
-  const [isLogin, setIsLogin] = useState(true);
+  const [view, setView] = useState<AuthView>("login");
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
@@ -24,28 +26,155 @@ export default function Auth() {
     navigate("/");
   };
 
+  const handleForgotPassword = (e: React.FormEvent) => {
+    e.preventDefault();
+    // Test mode: show success message
+    setView("reset-sent");
+  };
+
   const handleGoogleLogin = () => {
     // Test mode: Google login redirects to home
     navigate("/");
   };
 
+  const getTitle = () => {
+    switch (view) {
+      case "login":
+        return "Bem-vindo de volta!";
+      case "signup":
+        return "Criar conta";
+      case "forgot-password":
+        return "Recuperar senha";
+      case "reset-sent":
+        return "E-mail enviado!";
+    }
+  };
+
+  const getDescription = () => {
+    switch (view) {
+      case "login":
+        return "Entre na sua conta para continuar";
+      case "signup":
+        return "Preencha os dados para se cadastrar";
+      case "forgot-password":
+        return "Digite seu e-mail para receber o link de recuperação";
+      case "reset-sent":
+        return "Verifique sua caixa de entrada";
+    }
+  };
+
+  // Reset sent success view
+  if (view === "reset-sent") {
+    return (
+      <div className="min-h-screen bg-background flex flex-col">
+        <main className="flex-1 flex items-center justify-center p-6">
+          <Card className="w-full max-w-md border-0 shadow-xl bg-card/80 backdrop-blur-sm">
+            <CardHeader className="text-center space-y-2 pb-2">
+              <div className="mx-auto w-16 h-16 rounded-full bg-green-500/10 flex items-center justify-center mb-2">
+                <CheckCircle className="w-8 h-8 text-green-500" />
+              </div>
+              <CardTitle className="text-2xl font-bold">{getTitle()}</CardTitle>
+              <CardDescription>{getDescription()}</CardDescription>
+            </CardHeader>
+
+            <CardContent className="space-y-6">
+              <p className="text-center text-muted-foreground">
+                Enviamos um link de recuperação para{" "}
+                <span className="font-medium text-foreground">{formData.email || "seu e-mail"}</span>.
+                Clique no link para redefinir sua senha.
+              </p>
+
+              <div className="space-y-3">
+                <Button 
+                  onClick={() => setView("login")} 
+                  className="w-full h-12" 
+                  size="lg"
+                >
+                  Voltar para o login
+                </Button>
+
+                <p className="text-center text-sm text-muted-foreground">
+                  Não recebeu o e-mail?{" "}
+                  <button
+                    type="button"
+                    onClick={() => setView("forgot-password")}
+                    className="text-primary font-medium hover:underline"
+                  >
+                    Enviar novamente
+                  </button>
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </main>
+      </div>
+    );
+  }
+
+  // Forgot password view
+  if (view === "forgot-password") {
+    return (
+      <div className="min-h-screen bg-background flex flex-col">
+        <main className="flex-1 flex items-center justify-center p-6">
+          <Card className="w-full max-w-md border-0 shadow-xl bg-card/80 backdrop-blur-sm">
+            <CardHeader className="text-center space-y-2 pb-2">
+              <div className="mx-auto w-16 h-16 rounded-2xl gradient-primary flex items-center justify-center mb-2">
+                <Mail className="w-7 h-7 text-primary-foreground" />
+              </div>
+              <CardTitle className="text-2xl font-bold">{getTitle()}</CardTitle>
+              <CardDescription>{getDescription()}</CardDescription>
+            </CardHeader>
+
+            <CardContent className="space-y-6">
+              <form onSubmit={handleForgotPassword} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="reset-email">E-mail</Label>
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                    <Input
+                      id="reset-email"
+                      type="email"
+                      placeholder="seu@email.com"
+                      className="pl-10 h-12"
+                      value={formData.email}
+                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    />
+                  </div>
+                </div>
+
+                <Button type="submit" className="w-full h-12" size="lg">
+                  Enviar link de recuperação
+                </Button>
+              </form>
+
+              <button
+                type="button"
+                onClick={() => setView("login")}
+                className="flex items-center justify-center gap-2 w-full text-sm text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                Voltar para o login
+              </button>
+            </CardContent>
+          </Card>
+        </main>
+      </div>
+    );
+  }
+
+  // Login / Signup view
+  const isLogin = view === "login";
+
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      {/* Main Content */}
       <main className="flex-1 flex items-center justify-center p-6">
         <Card className="w-full max-w-md border-0 shadow-xl bg-card/80 backdrop-blur-sm">
           <CardHeader className="text-center space-y-2 pb-2">
             <div className="mx-auto w-16 h-16 rounded-2xl gradient-primary flex items-center justify-center mb-2">
               <span className="text-2xl font-bold text-primary-foreground">N</span>
             </div>
-            <CardTitle className="text-2xl font-bold">
-              {isLogin ? "Bem-vindo de volta!" : "Criar conta"}
-            </CardTitle>
-            <CardDescription>
-              {isLogin 
-                ? "Entre na sua conta para continuar" 
-                : "Preencha os dados para se cadastrar"}
-            </CardDescription>
+            <CardTitle className="text-2xl font-bold">{getTitle()}</CardTitle>
+            <CardDescription>{getDescription()}</CardDescription>
           </CardHeader>
 
           <CardContent className="space-y-6">
@@ -166,6 +295,7 @@ export default function Auth() {
                 <div className="text-right">
                   <button
                     type="button"
+                    onClick={() => setView("forgot-password")}
                     className="text-sm text-primary hover:underline"
                   >
                     Esqueceu a senha?
@@ -184,7 +314,7 @@ export default function Auth() {
               {isLogin ? "Não tem uma conta?" : "Já tem uma conta?"}{" "}
               <button
                 type="button"
-                onClick={() => setIsLogin(!isLogin)}
+                onClick={() => setView(isLogin ? "signup" : "login")}
                 className="text-primary font-medium hover:underline"
               >
                 {isLogin ? "Cadastre-se" : "Entrar"}
