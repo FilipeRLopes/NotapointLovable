@@ -4,11 +4,11 @@ import { MapPin, ShoppingCart, Package, Navigation } from "lucide-react";
 import FictionalMap from "@/components/map/FictionalMap";
 import { Button } from "@/components/ui/button";
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+} from "@/components/ui/drawer";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface CartItem {
@@ -140,11 +140,11 @@ export function StoreMapDialog({ open, onOpenChange, cartItems }: StoreMapDialog
   }, {} as Record<number, { store: Store; items: { name: string; price: number }[]; total: number }>);
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg h-[85vh] flex flex-col p-0 gap-0 bg-background">
-        <DialogHeader className="p-4 pb-2 border-b border-border/50">
-          <DialogTitle className="text-xl font-bold">Onde Comprar</DialogTitle>
-        </DialogHeader>
+    <Drawer open={open} onOpenChange={onOpenChange}>
+      <DrawerContent className="max-h-[85vh] flex flex-col">
+        <DrawerHeader className="pb-2 border-b border-border/50">
+          <DrawerTitle className="text-xl font-bold">Onde Comprar</DrawerTitle>
+        </DrawerHeader>
 
         <Tabs value={selectedTab} onValueChange={(v) => setSelectedTab(v as "single" | "combo")} className="flex-1 flex flex-col overflow-hidden">
           <TabsList className="mx-4 mt-2 grid grid-cols-2 bg-muted/50">
@@ -324,7 +324,7 @@ export function StoreMapDialog({ open, onOpenChange, cartItems }: StoreMapDialog
             </Button>
           </TabsContent>
         </Tabs>
-      </DialogContent>
-    </Dialog>
+      </DrawerContent>
+    </Drawer>
   );
 }
