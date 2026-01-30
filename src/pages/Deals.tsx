@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import { ArrowLeft, Clock, Sparkles, TrendingDown, MapPin, Filter } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -6,6 +6,7 @@ import { MobileLayout } from "@/components/layout/MobileLayout";
 import { formatPriceUpdateDate } from "@/lib/formatDate";
 import { Button } from "@/components/ui/button";
 import { DealDetailDrawer, Deal } from "@/components/deals/DealDetailDrawer";
+import { DealsFilterDrawer, DealFilters } from "@/components/deals/DealsFilterDrawer";
 
 interface DealWithDistance extends Deal {
   id: number;
@@ -103,16 +104,88 @@ const allDeals: DealWithDistance[] = [
   },
 ];
 
+const parseDistance = (distance: string): number => {
+  if (distance.includes("km")) {
+    return parseFloat(distance.replace("km", ""));
+  }
+  return parseFloat(distance.replace("m", "")) / 1000;
+};
+
+const parseExpiration = (expiresIn?: string): number => {
+  if (!expiresIn) return Infinity;
+  if (expiresIn.includes("dia")) return parseFloat(expiresIn) * 24;
+  if (expiresIn.includes("h")) return parseFloat(expiresIn);
+  return Infinity;
+};
+
 export default function Deals() {
   const navigate = useNavigate();
-  const [deals] = useState(allDeals);
   const [selectedDeal, setSelectedDeal] = useState<DealWithDistance | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [filterDrawerOpen, setFilterDrawerOpen] = useState(false);
+  const [filters, setFilters] = useState<DealFilters>({
+    stores: [],
+    minDiscount: 0,
+    maxDistance: 10,
+    sortBy: "discount"
+  });
+
+  const availableStores = useMemo(() => 
+    [...new Set(allDeals.map(d => d.store))].sort(),
+    []
+  );
+
+  const filteredDeals = useMemo(() => {
+    let result = [...allDeals];
+
+    // Filter by stores
+    if (filters.stores.length > 0) {
+      result = result.filter(deal => filters.stores.includes(deal.store));
+    }
+
+    // Filter by minimum discount
+    if (filters.minDiscount > 0) {
+      result = result.filter(deal => {
+        const discount = Math.round(((deal.originalPrice - deal.dealPrice) / deal.originalPrice) * 100);
+        return discount >= filters.minDiscount;
+      });
+    }
+
+    // Filter by maximum distance
+    if (filters.maxDistance < 10) {
+      result = result.filter(deal => parseDistance(deal.distance) <= filters.maxDistance);
+    }
+
+    // Sort
+    result.sort((a, b) => {
+      switch (filters.sortBy) {
+        case "discount":
+          const discountA = (a.originalPrice - a.dealPrice) / a.originalPrice;
+          const discountB = (b.originalPrice - b.dealPrice) / b.originalPrice;
+          return discountB - discountA;
+        case "distance":
+          return parseDistance(a.distance) - parseDistance(b.distance);
+        case "price":
+          return a.dealPrice - b.dealPrice;
+        case "expiration":
+          return parseExpiration(a.expiresIn) - parseExpiration(b.expiresIn);
+        default:
+          return 0;
+      }
+    });
+
+    return result;
+  }, [filters]);
 
   const handleDealClick = (deal: DealWithDistance) => {
     setSelectedDeal(deal);
     setDrawerOpen(true);
   };
+
+  const activeFiltersCount = 
+    filters.stores.length + 
+    (filters.minDiscount > 0 ? 1 : 0) + 
+    (filters.maxDistance < 10 ? 1 : 0);
 
   return (
     <MobileLayout hideNav>
@@ -128,89 +201,112 @@ export default function Deals() {
             </button>
             <div>
               <h1 className="text-xl font-bold text-foreground">Ofertas em Destaque</h1>
-              <p className="text-sm text-muted-foreground">{deals.length} ofertas disponíveis</p>
+              <p className="text-sm text-muted-foreground">{filteredDeals.length} ofertas disponíveis</p>
             </div>
           </div>
-          <Button variant="outline" size="icon" className="rounded-xl">
+          <Button 
+            variant="outline" 
+            size="icon" 
+            className="rounded-xl relative"
+            onClick={() => setFilterDrawerOpen(true)}
+          >
             <Filter className="w-4 h-4" />
+            {activeFiltersCount > 0 && (
+              <span className="absolute -top-1 -right-1 w-4 h-4 bg-primary text-primary-foreground text-[10px] font-bold rounded-full flex items-center justify-center">
+                {activeFiltersCount}
+              </span>
+            )}
           </Button>
         </div>
 
         {/* Deals Grid */}
         <div className="space-y-3">
-          {deals.map((deal, index) => {
-            const discount = Math.round(((deal.originalPrice - deal.dealPrice) / deal.originalPrice) * 100);
-            
-            return (
-              <motion.div
-                key={deal.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.05 }}
-                className="bg-card rounded-2xl p-4 shadow-sm border border-border/50 hover:shadow-md transition-shadow cursor-pointer active:scale-[0.99]"
-                onClick={() => handleDealClick(deal)}
+          {filteredDeals.length === 0 ? (
+            <div className="text-center py-12">
+              <p className="text-muted-foreground">Nenhuma oferta encontrada com esses filtros</p>
+              <Button 
+                variant="link" 
+                className="text-primary mt-2"
+                onClick={() => setFilters({ stores: [], minDiscount: 0, maxDistance: 10, sortBy: "discount" })}
               >
-                <div className="flex gap-4">
-                  {/* Product Image */}
-                  <div className="w-20 h-20 rounded-xl bg-secondary flex items-center justify-center overflow-hidden flex-shrink-0 relative">
-                    <img 
-                      src={deal.image} 
-                      alt={deal.product} 
-                      className="w-full h-full object-cover" 
-                    />
-                    {/* Discount Badge */}
-                    <div className="absolute -top-1 -right-1 bg-accent text-accent-foreground text-xs font-bold px-1.5 py-0.5 rounded-full flex items-center gap-0.5">
-                      <Sparkles className="w-2.5 h-2.5" />
-                      -{discount}%
+                Limpar filtros
+              </Button>
+            </div>
+          ) : (
+            filteredDeals.map((deal, index) => {
+              const discount = Math.round(((deal.originalPrice - deal.dealPrice) / deal.originalPrice) * 100);
+              
+              return (
+                <motion.div
+                  key={deal.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.05 }}
+                  className="bg-card rounded-2xl p-4 shadow-sm border border-border/50 hover:shadow-md transition-shadow cursor-pointer active:scale-[0.99]"
+                  onClick={() => handleDealClick(deal)}
+                >
+                  <div className="flex gap-4">
+                    {/* Product Image */}
+                    <div className="w-20 h-20 rounded-xl bg-secondary flex items-center justify-center overflow-hidden flex-shrink-0 relative">
+                      <img 
+                        src={deal.image} 
+                        alt={deal.product} 
+                        className="w-full h-full object-cover" 
+                      />
+                      {/* Discount Badge */}
+                      <div className="absolute -top-1 -right-1 bg-accent text-accent-foreground text-xs font-bold px-1.5 py-0.5 rounded-full flex items-center gap-0.5">
+                        <Sparkles className="w-2.5 h-2.5" />
+                        -{discount}%
+                      </div>
+                    </div>
+                    
+                    {/* Product Info */}
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-semibold text-foreground truncate mb-1">{deal.product}</h3>
+                      
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="text-2xl font-bold text-primary">
+                          R$ {deal.dealPrice.toFixed(2).replace(".", ",")}
+                        </span>
+                        <span className="flex items-center text-xs font-medium px-2 py-0.5 rounded-full bg-success/10 text-success">
+                          <TrendingDown className="w-3 h-3 mr-1" />
+                          {discount}%
+                        </span>
+                      </div>
+                      
+                      <div className="flex items-center gap-1 text-muted-foreground text-sm">
+                        <MapPin className="w-3 h-3" />
+                        <span className="truncate">{deal.store}</span>
+                        <span className="text-border">•</span>
+                        <span>{deal.distance}</span>
+                      </div>
                     </div>
                   </div>
                   
-                  {/* Product Info */}
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-foreground truncate mb-1">{deal.product}</h3>
-                    
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className="text-2xl font-bold text-primary">
-                        R$ {deal.dealPrice.toFixed(2).replace(".", ",")}
-                      </span>
-                      <span className="flex items-center text-xs font-medium px-2 py-0.5 rounded-full bg-success/10 text-success">
-                        <TrendingDown className="w-3 h-3 mr-1" />
-                        {discount}%
+                  {/* Price comparison and expiration */}
+                  <div className="mt-3 pt-3 border-t border-border/50 flex justify-between items-center text-sm">
+                    <div className="flex items-center gap-2">
+                      <span className="text-muted-foreground">De</span>
+                      <span className="text-muted-foreground line-through">
+                        R$ {deal.originalPrice.toFixed(2).replace(".", ",")}
                       </span>
                     </div>
-                    
-                    <div className="flex items-center gap-1 text-muted-foreground text-sm">
-                      <MapPin className="w-3 h-3" />
-                      <span className="truncate">{deal.store}</span>
-                      <span className="text-border">•</span>
-                      <span>{deal.distance}</span>
-                    </div>
+                    {deal.expiresIn && (
+                      <span className="text-xs font-medium text-accent bg-accent/10 px-2 py-1 rounded-full">
+                        Expira em {deal.expiresIn}
+                      </span>
+                    )}
                   </div>
-                </div>
-                
-                {/* Price comparison and expiration */}
-                <div className="mt-3 pt-3 border-t border-border/50 flex justify-between items-center text-sm">
-                  <div className="flex items-center gap-2">
-                    <span className="text-muted-foreground">De</span>
-                    <span className="text-muted-foreground line-through">
-                      R$ {deal.originalPrice.toFixed(2).replace(".", ",")}
-                    </span>
+                  
+                  {/* Price update info */}
+                  <div className="mt-2 flex items-center gap-1 text-xs text-muted-foreground">
+                    <Clock className="w-3 h-3" />
+                    <span>Preço atualizado em {formatPriceUpdateDate(deal.updatedAt)}</span>
                   </div>
-                  {deal.expiresIn && (
-                    <span className="text-xs font-medium text-accent bg-accent/10 px-2 py-1 rounded-full">
-                      Expira em {deal.expiresIn}
-                    </span>
-                  )}
-                </div>
-                
-                {/* Price update info */}
-                <div className="mt-2 flex items-center gap-1 text-xs text-muted-foreground">
-                  <Clock className="w-3 h-3" />
-                  <span>Preço atualizado em {formatPriceUpdateDate(deal.updatedAt)}</span>
-                </div>
-              </motion.div>
-            );
-          })}
+                </motion.div>
+              );
+            })
+          )}
         </div>
       </div>
 
@@ -218,6 +314,14 @@ export default function Deals() {
         deal={selectedDeal} 
         open={drawerOpen} 
         onOpenChange={setDrawerOpen} 
+      />
+
+      <DealsFilterDrawer
+        open={filterDrawerOpen}
+        onOpenChange={setFilterDrawerOpen}
+        filters={filters}
+        onApplyFilters={setFilters}
+        availableStores={availableStores}
       />
     </MobileLayout>
   );
