@@ -1,8 +1,10 @@
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { ArrowRight, Clock, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { formatPriceUpdateDate } from "@/lib/formatDate";
 import { useNavigate } from "react-router-dom";
+import { DealDetailDrawer, Deal } from "@/components/deals/DealDetailDrawer";
 
 interface DealProps {
   product: string;
@@ -12,13 +14,17 @@ interface DealProps {
   store: string;
   expiresIn?: string;
   updatedAt?: Date;
+  onClick?: () => void;
 }
 
-function DealCard({ product, image, originalPrice, dealPrice, store, expiresIn, updatedAt = new Date() }: DealProps) {
+function DealCard({ product, image, originalPrice, dealPrice, store, expiresIn, updatedAt = new Date(), onClick }: DealProps) {
   const discount = Math.round(((originalPrice - dealPrice) / originalPrice) * 100);
   
   return (
-    <div className="min-w-[180px] bg-gradient-to-br from-accent/10 to-accent/5 rounded-2xl p-3 border border-accent/20">
+    <div 
+      className="min-w-[180px] bg-gradient-to-br from-accent/10 to-accent/5 rounded-2xl p-3 border border-accent/20 cursor-pointer hover:shadow-md transition-shadow active:scale-[0.98]"
+      onClick={onClick}
+    >
       {/* Product Image */}
       <div className="relative w-full h-24 rounded-xl overflow-hidden mb-3 bg-secondary">
         <img 
@@ -56,7 +62,7 @@ function DealCard({ product, image, originalPrice, dealPrice, store, expiresIn, 
   );
 }
 
-const deals: DealProps[] = [
+const deals: Deal[] = [
   { 
     product: "Leite Integral 1L", 
     image: "https://images.unsplash.com/photo-1563636619-e9143da7973b?w=200&h=200&fit=crop",
@@ -88,25 +94,40 @@ const deals: DealProps[] = [
 
 export function RecentDeals() {
   const navigate = useNavigate();
+  const [selectedDeal, setSelectedDeal] = useState<Deal | null>(null);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+
+  const handleDealClick = (deal: Deal) => {
+    setSelectedDeal(deal);
+    setDrawerOpen(true);
+  };
   
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.3 }}
-    >
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-bold text-foreground">Ofertas em destaque</h2>
-        <Button variant="ghost" size="sm" className="text-primary" onClick={() => navigate("/deals")}>
-          Ver todas <ArrowRight className="w-4 h-4 ml-1" />
-        </Button>
-      </div>
-      
-      <div className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
-        {deals.map((deal, i) => (
-          <DealCard key={i} {...deal} />
-        ))}
-      </div>
-    </motion.div>
+    <>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3 }}
+      >
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-bold text-foreground">Ofertas em destaque</h2>
+          <Button variant="ghost" size="sm" className="text-primary" onClick={() => navigate("/deals")}>
+            Ver todas <ArrowRight className="w-4 h-4 ml-1" />
+          </Button>
+        </div>
+        
+        <div className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
+          {deals.map((deal, i) => (
+            <DealCard key={i} {...deal} onClick={() => handleDealClick(deal)} />
+          ))}
+        </div>
+      </motion.div>
+
+      <DealDetailDrawer 
+        deal={selectedDeal} 
+        open={drawerOpen} 
+        onOpenChange={setDrawerOpen} 
+      />
+    </>
   );
 }

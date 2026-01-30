@@ -5,20 +5,14 @@ import { useNavigate } from "react-router-dom";
 import { MobileLayout } from "@/components/layout/MobileLayout";
 import { formatPriceUpdateDate } from "@/lib/formatDate";
 import { Button } from "@/components/ui/button";
+import { DealDetailDrawer, Deal } from "@/components/deals/DealDetailDrawer";
 
-interface Deal {
+interface DealWithDistance extends Deal {
   id: number;
-  product: string;
-  image: string;
-  originalPrice: number;
-  dealPrice: number;
-  store: string;
   distance: string;
-  expiresIn?: string;
-  updatedAt: Date;
 }
 
-const allDeals: Deal[] = [
+const allDeals: DealWithDistance[] = [
   {
     id: 1,
     product: "Leite Integral Piracanjuba 1L",
@@ -112,6 +106,13 @@ const allDeals: Deal[] = [
 export default function Deals() {
   const navigate = useNavigate();
   const [deals] = useState(allDeals);
+  const [selectedDeal, setSelectedDeal] = useState<DealWithDistance | null>(null);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+
+  const handleDealClick = (deal: DealWithDistance) => {
+    setSelectedDeal(deal);
+    setDrawerOpen(true);
+  };
 
   return (
     <MobileLayout hideNav>
@@ -146,7 +147,8 @@ export default function Deals() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.05 }}
-                className="bg-card rounded-2xl p-4 shadow-sm border border-border/50 hover:shadow-md transition-shadow"
+                className="bg-card rounded-2xl p-4 shadow-sm border border-border/50 hover:shadow-md transition-shadow cursor-pointer active:scale-[0.99]"
+                onClick={() => handleDealClick(deal)}
               >
                 <div className="flex gap-4">
                   {/* Product Image */}
@@ -211,6 +213,12 @@ export default function Deals() {
           })}
         </div>
       </div>
+
+      <DealDetailDrawer 
+        deal={selectedDeal} 
+        open={drawerOpen} 
+        onOpenChange={setDrawerOpen} 
+      />
     </MobileLayout>
   );
 }
