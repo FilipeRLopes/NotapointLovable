@@ -7,6 +7,7 @@ import { formatPriceUpdateDate } from "@/lib/formatDate";
 import { Button } from "@/components/ui/button";
 import { DealDetailDrawer, Deal } from "@/components/deals/DealDetailDrawer";
 import { DealsFilterDrawer, DealFilters } from "@/components/deals/DealsFilterDrawer";
+import leitePiracanjuba from "@/assets/products/leite-piracanjuba.png";
 
 interface DealWithDistance extends Deal {
   id: number;
@@ -17,7 +18,7 @@ const allDeals: DealWithDistance[] = [
   {
     id: 1,
     product: "Leite Integral Piracanjuba 1L",
-    image: "https://images.unsplash.com/photo-1563636619-e9143da7973b?w=200&h=200&fit=crop",
+    image: leitePiracanjuba,
     originalPrice: 6.99,
     dealPrice: 4.49,
     store: "Atacadão",
