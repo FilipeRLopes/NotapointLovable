@@ -10,6 +10,7 @@ import {
   DrawerTitle,
 } from "@/components/ui/drawer";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { OptimizedRouteDrawer } from "@/components/map/OptimizedRouteDrawer";
 
 interface CartItem {
   id: number;
@@ -94,6 +95,7 @@ const mockStores: Store[] = [
 export function StoreMapDialog({ open, onOpenChange, cartItems }: StoreMapDialogProps) {
   const [selectedTab, setSelectedTab] = useState<"single" | "combo">("single");
   const [selectedStore, setSelectedStore] = useState<Store | null>(null);
+  const [routeDrawerOpen, setRouteDrawerOpen] = useState(false);
 
   // Calculate total for each store
   const storesWithTotals = mockStores.map((store) => {
@@ -138,6 +140,16 @@ export function StoreMapDialog({ open, onOpenChange, cartItems }: StoreMapDialog
     acc[storeId].total += curr.price;
     return acc;
   }, {} as Record<number, { store: Store; items: { name: string; price: number }[]; total: number }>);
+
+  // Prepare route stores for the optimized route drawer
+  const routeStores = Object.values(comboByStore).map(group => ({
+    id: group.store.id,
+    name: group.store.name,
+    distance: group.store.distance,
+    address: group.store.address,
+    items: group.items,
+    total: group.total,
+  }));
 
   return (
     <Drawer open={open} onOpenChange={onOpenChange}>
@@ -318,12 +330,23 @@ export function StoreMapDialog({ open, onOpenChange, cartItems }: StoreMapDialog
             </div>
 
             {/* Route button */}
-            <Button variant="accent" className="w-full mt-4 h-12 rounded-xl">
+            <Button 
+              variant="accent" 
+              className="w-full mt-4 h-12 rounded-xl"
+              onClick={() => setRouteDrawerOpen(true)}
+            >
               <Navigation className="w-4 h-4 mr-2" />
               Ver rota otimizada
             </Button>
           </TabsContent>
         </Tabs>
+
+        <OptimizedRouteDrawer
+          open={routeDrawerOpen}
+          onOpenChange={setRouteDrawerOpen}
+          stores={routeStores}
+          totalSavings={savings}
+        />
       </DrawerContent>
     </Drawer>
   );
