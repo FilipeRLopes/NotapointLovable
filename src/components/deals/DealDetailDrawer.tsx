@@ -35,50 +35,53 @@ export function DealDetailDrawer({ deal, open, onOpenChange }: DealDetailDrawerP
   return (
     <Drawer open={open} onOpenChange={onOpenChange}>
       <DrawerContent className="max-h-[90vh] bg-background border-t-0 rounded-t-3xl overflow-hidden">
-        {/* Hero Image Section */}
-        <div className="relative">
-          <div className="h-56 w-full overflow-hidden">
+        {/* Header with Close Button */}
+        <div className="flex items-center justify-end p-4 pb-0">
+          <DrawerClose asChild>
+            <button className="w-9 h-9 rounded-full bg-secondary flex items-center justify-center hover:bg-secondary/80 transition-colors">
+              <X className="w-5 h-5 text-muted-foreground" />
+            </button>
+          </DrawerClose>
+        </div>
+
+        {/* Product Image Section - Square layout for catalog images */}
+        <div className="relative px-4">
+          <div className="relative mx-auto w-48 h-48 flex items-center justify-center">
+            {/* Subtle background circle */}
+            <div className="absolute inset-0 bg-gradient-to-br from-secondary/50 to-secondary/30 rounded-3xl" />
+            
             <img 
               src={deal.image} 
               alt={deal.product} 
-              className="w-full h-full object-cover"
+              className="relative z-10 w-full h-full object-contain p-2"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent" />
+            
+            {/* Discount Badge */}
+            <motion.div 
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ delay: 0.1, type: "spring", stiffness: 200 }}
+              className="absolute -top-2 -right-2 z-20"
+            >
+              <div className="bg-accent text-accent-foreground text-sm font-bold px-3 py-1.5 rounded-xl shadow-lg flex items-center gap-1.5">
+                <Tag className="w-4 h-4" />
+                -{discount}%
+              </div>
+            </motion.div>
           </div>
-          
-          {/* Close Button */}
-          <DrawerClose asChild>
-            <button className="absolute top-4 right-4 w-10 h-10 rounded-full bg-background/90 backdrop-blur-sm flex items-center justify-center shadow-lg hover:bg-background transition-colors">
-              <X className="w-5 h-5 text-foreground" />
-            </button>
-          </DrawerClose>
-          
-          {/* Discount Badge */}
+          {/* Price Card */}
           <motion.div 
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ delay: 0.1, type: "spring", stiffness: 200 }}
-            className="absolute top-4 left-4"
-          >
-            <div className="bg-accent text-accent-foreground text-lg font-bold px-4 py-2 rounded-2xl shadow-lg flex items-center gap-2">
-              <Tag className="w-5 h-5" />
-              -{discount}%
-            </div>
-          </motion.div>
-          
-          {/* Floating Price Card */}
-          <motion.div 
-            initial={{ y: 20, opacity: 0 }}
+            initial={{ y: 10, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.15 }}
-            className="absolute -bottom-12 left-4 right-4"
+            className="mt-4"
           >
-            <div className="bg-card rounded-2xl p-4 shadow-xl border border-border/50">
+            <div className="bg-gradient-to-br from-primary/10 to-primary/5 rounded-2xl p-4 border border-primary/20">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-xs text-muted-foreground mb-1">Preço promocional</p>
+                  <p className="text-xs text-muted-foreground mb-0.5">Preço promocional</p>
                   <div className="flex items-baseline gap-2">
-                    <span className="text-3xl font-bold text-primary">
+                    <span className="text-2xl font-bold text-primary">
                       R$ {deal.dealPrice.toFixed(2).replace(".", ",")}
                     </span>
                     <span className="text-sm text-muted-foreground line-through">
@@ -86,9 +89,9 @@ export function DealDetailDrawer({ deal, open, onOpenChange }: DealDetailDrawerP
                     </span>
                   </div>
                 </div>
-                <div className="text-right">
-                  <p className="text-xs text-muted-foreground mb-1">Você economiza</p>
-                  <span className="text-xl font-bold text-success">
+                <div className="text-right bg-success/10 px-3 py-2 rounded-xl">
+                  <p className="text-[10px] text-success/80 mb-0.5">Economia</p>
+                  <span className="text-lg font-bold text-success">
                     R$ {savings.toFixed(2).replace(".", ",")}
                   </span>
                 </div>
@@ -98,7 +101,7 @@ export function DealDetailDrawer({ deal, open, onOpenChange }: DealDetailDrawerP
         </div>
 
         {/* Content Section */}
-        <div className="p-4 pt-16 pb-6 overflow-y-auto">
+        <div className="p-4 pb-6 overflow-y-auto">
           {/* Product Title */}
           <motion.h2 
             initial={{ opacity: 0, y: 10 }}
